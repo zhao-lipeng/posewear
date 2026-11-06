@@ -64,7 +64,7 @@ def meta(lib):
         if 'D' not in data:
             sys.exit(f'{lib}: 页面结构可能已变化，没找到数据')
         json.dump(data, open(os.path.join(d, 'data.json'), 'w'), ensure_ascii=False)
-        keys = {'pose': ['サムネ', '原寸'], 'costume': ['画像', '原寸']}[lib]
+        keys = {'pose': ['サムネ', '原寸'], 'costume': ['サムネ', '画像', '原寸']}[lib]
         return [x[k] for x in data['D'] for k in keys if x.get(k)]
     for f in ('images.js', 'ranking.js'):
         open(os.path.join(d, f), 'wb').write(get(base + 'data/' + f))
