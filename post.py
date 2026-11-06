@@ -12,7 +12,7 @@ for f in ['style.css','zip.js','extras.js','studio.js']: put(f,open(f'src/{f}','
 app=open('src/app.js').read().replace("'poses.json'","'/"+A['poses.json']+"'").replace("'costumes.json'","'/"+A['costumes.json']+"'").replace("'portraits.json'","'/"+A['portraits.json']+"'").replace("'depths.json'","'/"+A['depths.json']+"'")
 put('app.js',app)
 VER='posewear-v10-'+h8(''.join(A.values()))
-idx=open('src/index.html').read()
+idx=open('src/index.html').read().replace('https://posewear.pages.dev',SITE)
 for f in ['style.css','app.js','zip.js','extras.js','studio.js']:
   idx=idx.replace(f'"{f}"',f'"/{A[f]}"')
 idx=idx.replace('href="poses.json"',f'href="/{A["poses.json"]}"')
@@ -44,6 +44,9 @@ h1{overflow-wrap:anywhere}
 :root{color-scheme:light dark}'''
 LOGO='<span class="mk"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="6.6" r="4" fill="currentColor"/><path d="M16 13.4 3.4 25.6h25.2z" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/></svg></span>'
 E=lambda s:H.escape(str(s),quote=True)
+# 图片可能是原站绝对地址，也可能是站内相对路径
+IU=lambda x:x if x.startswith('http') else f'{SITE}/{x}'
+IS=lambda x:x if x.startswith('http') else '/'+x
 def page(kind,it,rel):
   P=kind=='pose'
   if kind=='portrait':
@@ -57,16 +60,16 @@ def page(kind,it,rel):
     ttl=f"{it['ti']} · {it['cat']}穿搭参考";img=it['m'];w,h=1080,1620;th=it['t']
     desc=it['zh'];meta=f"{it['cat']} · 编号 {it['id']}";en=it['en']
   url=f"{SITE}/{kind}/{it['id']}/"
-  ld={"@context":"https://schema.org","@type":"ImageObject","name":ttl,"description":desc,"contentUrl":f"{SITE}/{img}","thumbnailUrl":f"{SITE}/{th}","url":url,"width":w,"height":h,"isPartOf":{"@type":"WebSite","name":"衣姿 PoseWear","url":SITE+'/'},"creditText":"AI Pose Gallery / AI Costume Gallery (@giaaibusi)"}
-  rl=''.join(f'<li><a href="/{kind}/{r["id"]}/"><img src="/{r["angles"][0]["t"] if P else r["t"]}" alt="{E(r["zh"] if P else r["ti"])}" width="{300 if P else 360 if kind=="costume" else 400}" height="{400 if P else 540 if kind=="costume" else 500}" loading="lazy">{E(r["zh"] if P else r["ti"])}</a></li>' for r in rel)
+  ld={"@context":"https://schema.org","@type":"ImageObject","name":ttl,"description":desc,"contentUrl":IU(img),"thumbnailUrl":IU(th),"url":url,"width":w,"height":h,"isPartOf":{"@type":"WebSite","name":"衣姿 PoseWear","url":SITE+'/'},"creditText":"AI Pose Gallery / AI Costume Gallery (@giaaibusi)"}
+  rl=''.join(f'<li><a href="/{kind}/{r["id"]}/"><img src="{IS(r["angles"][0]["t"] if P else r["t"])}" alt="{E(r["zh"] if P else r["ti"])}" width="{300 if P else 360 if kind=="costume" else 400}" height="{400 if P else 540 if kind=="costume" else 500}" loading="lazy">{E(r["zh"] if P else r["ti"])}</a></li>' for r in rel)
   lab={'pose':'姿势库','costume':'服装库','portrait':'人像库'}[kind]
   return f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{E(ttl)} | 衣姿 PoseWear</title><meta name="description" content="{E(desc[:150])}"><link rel="canonical" href="{url}">
-<meta property="og:type" content="article"><meta property="og:title" content="{E(ttl)}"><meta property="og:description" content="{E(desc[:150])}"><meta property="og:image" content="{SITE}/{img}"><meta property="og:url" content="{url}"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:type" content="article"><meta property="og:title" content="{E(ttl)}"><meta property="og:description" content="{E(desc[:150])}"><meta property="og:image" content="{IU(img)}"><meta property="og:url" content="{url}"><meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>{CSS}</style>
 <script type="application/ld+json">{json.dumps(ld,ensure_ascii=False)}</script></head><body>
 <header><a href="/">{LOGO}衣姿 PoseWear</a></header>
-<main><div class="im"><img src="/{img}" alt="{E(ttl)}" width="{w}" height="{h}"></div>
+<main><div class="im"><img src="{IS(img)}" alt="{E(ttl)}" width="{w}" height="{h}"></div>
 <div><div class="bc"><a href="/">首页</a> › <a href="/#{kind}">{lab}</a> › {E(it.get('cat') or it.get('len'))}</div><h1>{E(it['zh'] if P else it['ti'])}</h1><div class="mu">{E(meta)}</div>
 <div class="box"><small>中文描述</small><p>{E(desc)}</p></div><div class="box"><small>英文提示词 · PROMPT</small><p>{E(en)}</p></div>
 <a class="go" href="/#{kind}/{it['id']}">在衣姿中打开</a><a class="go" style="background:#111" href="/#studio">去试穿</a></div>
@@ -75,9 +78,9 @@ def page(kind,it,rel):
 open(f'{D}/404.html','w').write(f'''<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>页面不存在 | 衣姿 PoseWear</title><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><style>{CSS}
 .nf{{max-width:480px;margin:12vh auto;text-align:center;padding:0 20px}}.nf b{{font-size:64px;color:#d81b3a;display:block;line-height:1}}</style></head><body><header><a href="/">{LOGO}衣姿 PoseWear</a></header>
 <div class="nf"><b>404</b><h1>这个页面不存在</h1><p class="mu">链接可能写错了，或者内容已经调整。</p><a class="go" href="/">回到首页</a><a class="go" style="background:#111" href="/#costume">看看服装库</a></div></body></html>''')
-_IMG=" ".join(["'self'","data:","blob:"]+list(DEPTH_ORIGINS))
+_IMG=" ".join(["'self'","data:","blob:"]+IMG_ORIGINS+list(DEPTH_ORIGINS))
 CSP=("default-src 'self'; script-src 'self' "+SH+"; style-src 'self' 'unsafe-inline'; img-src "+_IMG+"; font-src 'self' data:; "
- "connect-src 'self' data: blob: https://api.openai.com https://generativelanguage.googleapis.com https://*.volces.com https://*.bytepluses.com https://oaidalleapiprodscus.blob.core.windows.net https://*.googleusercontent.com; "
+ "connect-src 'self' data: blob: "+" ".join(IMG_ORIGINS)+" https://api.openai.com https://generativelanguage.googleapis.com https://*.volces.com https://*.bytepluses.com https://oaidalleapiprodscus.blob.core.windows.net https://*.googleusercontent.com; "
  "worker-src 'self'; manifest-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests")
 IMM='  Cache-Control: public, max-age=31536000, immutable\n'
 open(f'{D}/_headers','w').write(f'''/*
@@ -89,10 +92,6 @@ open(f'{D}/_headers','w').write(f'''/*
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   Cross-Origin-Opener-Policy: same-origin
 /assets/*
-{IMM}/p/*
-{IMM}/c/*
-{IMM}/r/*
-{IMM}/o/*
 {IMM}/icon-*
   Cache-Control: public, max-age=86400
 /og.png

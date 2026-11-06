@@ -10,7 +10,7 @@ const ok=it=>it&&(st.adult||!it.a);
 function load(t){return LOAD[t]||(LOAD[t]=fetch({pose:'poses.json',depth:'depths.json',costume:'costumes.json',portrait:'portraits.json'}[t]).then(r=>{if(!r.ok)throw Error(r.status);return r.json()}).then(raw=>{const a=Array.isArray(raw)?raw:(raw.items||[]);if(t=='depth')DATA.depthMeta=raw.pack||null;a.forEach((it,i)=>{it.type=t;it.k=PFX[t]+it.id;it.ord=i;if(it.angles)it.ai=st.ang[it.k]||0;ITEMS[it.k]=it});DATA[t]=a;if(t=='depth')paintDepth();counts();return a}).catch(e=>{delete LOAD[t];throw e}))}
 const needKeys=ks=>Promise.all([...new Set(ks.map(k=>KT[k[0]]).filter(Boolean))].map(load));
 const thumb=it=>it.angles?it.angles[it.ai].t:it.t,big=it=>it.angles?it.angles[it.ai].i:(innerWidth*(devicePixelRatio||1)>1500?it.i:it.m);
-const orig=it=>it.ext?'':('/'+(it.angles?it.angles[it.ai].o:it.o));
+const orig=it=>{if(it.ext)return'';const o=it.angles?it.angles[it.ai].o:it.o;return /^https?:/i.test(o)?o:'/'+o};
 function prompt(it,lang){if(it.angles){const a=it.angles[it.ai];return lang=='en'?`${it.en}, ${it.lineEn}, ${a.en}`:`${it.zh}，${it.line}，${a.zh}`}return lang=='en'?it.en:it.zh}
 const title=it=>it.type=='pose'||it.type=='depth'?it.zh:it.ti;
 const subtitle=it=>it.type=='depth'?it.ja:st.lang=='en'?prompt(it,'en'):it.type=='pose'?`${it.cat} · ${it.angles.length} 个角度`:it.type=='portrait'?`${it.sec} · ${it.len}${it.rk?' · 人气第 '+it.rk:''}`:it.zh;

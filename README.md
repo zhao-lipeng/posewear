@@ -60,16 +60,15 @@
 
 ## 快速开始
 
-需要 Python 3.9+ 和 Pillow；测试与部署另外需要 Node.js 18+。
+需要 Python 3.9+（只用标准库）；测试与部署另外需要 Node.js 18+。
 
 ```bash
 git clone https://github.com/atuizz/posewear.git && cd posewear
-pip install pillow
 
-# 1. 从原作者的图库下载数据和图片到 ./assets-raw（数 GB，耗时较长）
-python3 scripts/fetch-assets.py            # 也可只下部分：pose costume portrait
+# 1. 从原作者的图库下载数据到 ./assets-raw（只有几 MB 的 JSON，图片不下载）
+python3 scripts/fetch-assets.py --meta-only
 
-# 2. 构建到 dist/
+# 2. 构建到 dist/（约 50MB，全是 HTML/JSON/JS）
 python3 build.py
 
 # 3. 本地预览 http://localhost:8787
@@ -83,7 +82,7 @@ python3 -m http.server 8787 -d dist
 
 ## 部署
 
-仓库不带素材，所以需要先在本地构建，再上传 `dist/` 到 Cloudflare Pages：
+仓库不带素材，所以需要先在本地构建，再上传 `dist/` 到 Cloudflare Pages。所有图片（缩略图、大图、原图）都由浏览器直接从原作者站点加载，不经过、也不存放在本站：
 
 ```bash
 npm install
@@ -186,7 +185,7 @@ Key 只存在你浏览器的 localStorage 里，可在设置里清除。默认�
 | 内容 | 是否在本仓库 | 许可 |
 |---|---|---|
 | 代码、页面文案、构建脚本 | 是 | [MIT](LICENSE) |
-| 姿势、服装图片和原始数据 | 否，由 `fetch-assets.py` 从原站下载 | 归原作者 [@giaaibusi](https://x.com/giaaibusi) 所有（[AI Pose Gallery](https://ai-pose-gallery.pages.dev/) / [AI Costume Gallery](https://ai-costume-gallery.pages.dev/)），原站未标明开放许可 |
+| 姿势、服装图片和原始数据 | 否，数据由 `fetch-assets.py` 从原站下载，图片由页面热链原站 | 归原作者 [@giaaibusi](https://x.com/giaaibusi) 所有（[AI Pose Gallery](https://ai-pose-gallery.pages.dev/) / [AI Costume Gallery](https://ai-costume-gallery.pages.dev/)），原站未标明开放许可 |
 | 人像图片 | 否，同上 | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/deed.zh-hans)，作者 [@agi_aibusi](https://x.com/agi_aibusi)（[AI Portrait Gallery](https://ai-portrait-gallery.pages.dev/)） |
 | 深度姿势图片 | 否，页面 `<img>` 热链 [AI Pose Depth Gallery](https://ai-pose-depth-gallery.pages.dev/) | 归作者 [ギア / @giaaibusi](https://x.com/giaaibusi)。本仓库只有文本元数据和译名 |
 | 深度姿势文本元数据 | 是，`depth/packs/` | 日文原文归原作者，中文译名为本站 |

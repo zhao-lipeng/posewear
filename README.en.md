@@ -48,13 +48,12 @@ Pose, outfit and portrait reference galleries with bilingual prompts, plus a bri
 
 ## Quick start
 
-You need Python 3.9+ with Pillow. Tests and deploys also need Node.js 18+.
+You need Python 3.9+ (standard library only). Tests and deploys also need Node.js 18+.
 
 ```bash
 git clone https://github.com/atuizz/posewear.git && cd posewear
-pip install pillow
-python3 scripts/fetch-assets.py   # downloads data and images from the original galleries (several GB)
-python3 build.py                  # outputs dist/
+python3 scripts/fetch-assets.py --meta-only   # downloads only the gallery data (a few MB of JSON)
+python3 build.py                  # outputs dist/ (~50MB of HTML/JSON/JS)
 python3 -m http.server 8787 -d dist
 ```
 
@@ -62,7 +61,7 @@ Set `POSEWEAR_RAW` to use a different asset folder, and `POSEWEAR_SITE` to set y
 
 ## Deploy
 
-The repository ships without assets, so build locally first, then upload `dist/` to Cloudflare Pages:
+The repository ships without assets, so build locally first, then upload `dist/` to Cloudflare Pages. All images (thumbnails, previews, originals) are loaded by the browser directly from the original galleries; none are stored or served by this site:
 
 ```bash
 npm install && npx wrangler login
@@ -103,7 +102,7 @@ Issues and PRs are welcome. Run `python3 build.py` and both test files before yo
 | What | In this repo? | License |
 |---|---|---|
 | Code, UI copy, build scripts | Yes | [MIT](LICENSE) |
-| Pose and outfit images and data | No — downloaded by `fetch-assets.py` | Owned by [@giaaibusi](https://x.com/giaaibusi) ([AI Pose Gallery](https://ai-pose-gallery.pages.dev/) / [AI Costume Gallery](https://ai-costume-gallery.pages.dev/)); no open license is stated |
+| Pose and outfit images and data | No — data is downloaded by `fetch-assets.py`; images are hotlinked from the source sites | Owned by [@giaaibusi](https://x.com/giaaibusi) ([AI Pose Gallery](https://ai-pose-gallery.pages.dev/) / [AI Costume Gallery](https://ai-costume-gallery.pages.dev/)); no open license is stated |
 | Portrait images | No — same as above | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) by [@agi_aibusi](https://x.com/agi_aibusi) ([AI Portrait Gallery](https://ai-portrait-gallery.pages.dev/)) |
 | Depth-pose images | No — hotlinked with `<img>` from [AI Pose Depth Gallery](https://ai-pose-depth-gallery.pages.dev/) | Owned by [ギア / @giaaibusi](https://x.com/giaaibusi). This repo only has the text metadata and Chinese names |
 | Depth-pose text metadata | Yes, `depth/packs/` | Japanese text belongs to the original author; Chinese names are ours |
